@@ -1,0 +1,93 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.36.0'
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'com.vanniktech.maven.publish'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+compileJava {
+    options.incremental = true
+}
+
+def projectName = 'kryo-jdkgdxds'
+
+group = 'com.github.tommyettinger'
+
+version = "$VERSION_NAME"
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+eclipse.project.name = project.name
+
+sourceSets.test.resources.srcDirs = [ file('src/test/resources').path ]
+
+javadoc.destinationDir = file("docs/")
+javadoc.options.source("8")
+((StandardJavadocDocletOptions)javadoc.options).linkSource(true)
+((StandardJavadocDocletOptions)javadoc.options).noTimestamp(true)
+((StandardJavadocDocletOptions)javadoc.options).use(true)
+((StandardJavadocDocletOptions)javadoc.options).bottom("Copyright &#169; Tommy Ettinger 2026.")
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
+    maven { url = 'https://jitpack.io' }
+}
+
+// Disable JDK 8's doclint
+// http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc).tap {
+            configureEach {
+                // The -quiet is because of some sort of weird JDK JavaCompiler bug:
+                // https://discuss.gradle.org/t/passing-arguments-to-compiler-and-javadoc/1661
+                options.addStringOption('Xdoclint:none,-missing', '-quiet')
+                options.tags('apiNote:a:"API Note"', 'implSpec:a:"Implementation Requirements"', 'implNote:a:"Implementation Note"')
+            }
+        }
+    }
+}
+
+compileJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.release.set(8)
+    }
+}
+
+compileTestJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.release.set(8)
+    }
+}
+
+idea.module.excludeDirs += [file("docs/")]
+
+dependencies {
+    api "com.esotericsoftware:kryo:$kryoVersion"
+    api "com.github.tommyettinger:digital:0.10.2"
+    api "com.github.tommyettinger:kryo-digital:0.10.2.2"
+    api "com.github.tommyettinger:jdkgdxds:$jdkgdxdsVersion"
+    testImplementation "junit:junit:4.13.2"
+}
+
+jar {
+    archiveBaseName.set(project.name)
+    manifest {
+        attributes 'Implementation-Title': project.name, 'Implementation-Version': archiveVersion
+    }
+}
