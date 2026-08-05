@@ -5,10 +5,10 @@ Kryo 5.x support for classes from [jdkgdxds](https://github.com/tommyettinger/jd
 
 Use JitPack.io as your repository (which gdx-liftoff projects already can do) and depend on:
 ```
-implementation "com.github.tommyettinger:kryo-jdkgdxds:2.1.6.2"
+implementation "com.github.tommyettinger:kryo-jdkgdxds:2.1.8.2"
 ```
 
-This release is compatible with jdkgdxds 2.1.6 and Kryo 5.6.2 .
+This release is compatible with jdkgdxds 2.1.8 and Kryo 5.6.2 .
 
 ## Usage
 
